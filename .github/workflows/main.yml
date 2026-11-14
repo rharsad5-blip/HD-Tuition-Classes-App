@@ -1,0 +1,42 @@
+name: Build HD Tuition APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract ZIP
+        run: |
+          unzip -o untitled.zip -d project
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Build APK
+        run: |
+          cd project
+          PROJECT=$(find . -name settings.gradle.kts -o -name settings.gradle | head -1)
+          cd "$(dirname "$PROJECT")"
+          gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: HD-Tuition-APK
+          path: project/**/build/outputs/apk/**/*.apk
